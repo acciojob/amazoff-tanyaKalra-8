@@ -45,25 +45,14 @@ public class OrderRepository {
     }
 
     public DeliveryPartner getPartnerById(String id){
-        for(String s:deliveryPartnerHashMap.keySet())
-        {
-            if(s.equals(id))
-            {
-                return deliveryPartnerHashMap.get(s);
-            }
+        if (deliveryPartnerHashMap.containsKey(id)){
+            return deliveryPartnerHashMap.get(id);
         }
         return null;
     }
 
     public int getOrderCountByPartnerId(String partnerId){
-        for(String s:deliveryPartnerOrderHashMap.keySet())
-        {
-            if(s.equals(partnerId))
-            {
-                return deliveryPartnerOrderHashMap.get(partnerId).size();
-            }
-        }
-        return 0;
+        return deliveryPartnerOrderHashMap.getOrDefault(partnerId,new ArrayList<>()).size();
     }
 
     public List<String> getOrdersByPartnerId(String partnerId){
