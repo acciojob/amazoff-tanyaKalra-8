@@ -12,11 +12,10 @@ public class OrderRepository {
 
     HashMap<String, List<String>> deliveryPartnerOrderHashMap = new HashMap<>();
 
-    HashSet<String> notAssigned = new HashSet<>();
+    HashSet<String> Assigned = new HashSet<>();
 
     public void addOrder(Order order){
         String id = order.getId();
-        notAssigned.add(id);
         orderHashMap.put(id,order);
     }
 
@@ -28,7 +27,7 @@ public class OrderRepository {
     public void addOrderPartnerPair(String orderId, String partnerId){
         if(orderHashMap.containsKey(orderId) && deliveryPartnerHashMap.containsKey(partnerId))
         {
-            notAssigned.remove(orderId);
+            Assigned.add(orderId);
             orderHashMap.put(orderId,orderHashMap.get(orderId));
             deliveryPartnerHashMap.put(partnerId,deliveryPartnerHashMap.get(partnerId));
             List<String> curr =new ArrayList<>();
@@ -42,15 +41,29 @@ public class OrderRepository {
     }
 
     public Order getOrderById(String id){
-        return orderHashMap.getOrDefault(id,null);
+        for(String s:orderHashMap.keySet())
+        {
+            if(s.equals(id))
+            {
+                return orderHashMap.get(id);
+            }
+        }
+        return null;
     }
 
     public DeliveryPartner getPartnerById(String id){
-        return deliveryPartnerHashMap.getOrDefault(id,null);
+        for(String s:deliveryPartnerHashMap.keySet())
+        {
+            if(s.equals(id))
+            {
+                return deliveryPartnerHashMap.get(id);
+            }
+        }
+        return null;
     }
 
     public int getOrderCountByPartnerId(String partnerId){
-        return deliveryPartnerOrderHashMap.get(partnerId).size();
+        return deliveryPartnerOrderHashMap.getOrDefault(partnerId,new ArrayList<>()).size();
     }
 
     public List<String> getOrdersByPartnerId(String partnerId){
@@ -69,8 +82,9 @@ public class OrderRepository {
         return orders;
     }
 
-        public Integer getCountOfUnassignedOrders(){
-            return notAssigned.size();
+        public int getCountOfUnassignedOrders(){
+            int count= orderHashMap.size() - Assigned.size();
+            return count;
     }
 
     public Integer getOrdersLeftAfterGivenTimeByPartnerId(String time, String partnerId){
@@ -121,13 +135,11 @@ public class OrderRepository {
             List<String> orders = deliveryPartnerOrderHashMap.get(partnerId);
             for (String order:orders){
                 orders.remove(order);
-                notAssigned.remove(order);
+                Assigned.remove(order);
             }
             deliveryPartnerOrderHashMap.remove(partnerId);
         }
-        if (deliveryPartnerHashMap.containsKey(partnerId)){
-            deliveryPartnerHashMap.remove(partnerId);
-        }
+        deliveryPartnerHashMap.remove(partnerId);
     }
 
     public void deleteOrderById(String orderId){
@@ -136,12 +148,10 @@ public class OrderRepository {
             for (String order:orders){
                 if (order.equals(orderId)){
                     orders.remove(order);
-                    notAssigned.remove(order);
+                    Assigned.remove(order);
                 }
             }
         }
-        if (orderHashMap.containsKey(orderId)){
-            orderHashMap.remove(orderId);
-        }
+        orderHashMap.remove(orderId);
     }
 }
