@@ -2,23 +2,21 @@ package com.driver;
 
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Repository
 public class OrderRepository {
 
-    int unassigned = 0;
     HashMap<String, Order> orderHashMap = new HashMap<>();
     HashMap<String,DeliveryPartner> deliveryPartnerHashMap = new HashMap<>();
 
     HashMap<String, List<Order>> deliveryPartnerOrderHashMap = new HashMap<>();
 
+    HashSet<String> notAssigned = new HashSet<>();
+
     public void addOrder(Order order){
         String id = order.getId();
-        unassigned++;
+        notAssigned.add(id);
         orderHashMap.put(id,order);
     }
 
@@ -31,7 +29,7 @@ public class OrderRepository {
         List<Order> orders = new ArrayList<>();
         Order order = orderHashMap.getOrDefault(orderId,null);
         orders.add(order);
-        unassigned--;
+        notAssigned.remove(orderId);
         deliveryPartnerOrderHashMap.put(partnerId, orders);
     }
 
@@ -71,9 +69,7 @@ public class OrderRepository {
     }
 
         public Integer getCountOfUnassignedOrders(){
-        Integer count = 0;
-        count = Integer.valueOf(unassigned);
-        return count;
+            return notAssigned.size();
     }
 
     public Integer getOrdersLeftAfterGivenTimeByPartnerId(String time, String partnerId){
@@ -102,14 +98,27 @@ public class OrderRepository {
                 }
             }
         }
-        return Integer.toString(deliverTm);
+        int hours= deliverTm/60;
+        int min= deliverTm%60;
+        String strhours = Integer.toString(hours);
+        if(strhours.length()==1){
+            strhours = "0"+strhours;
+        }
+
+        String minutes = Integer.toString(min);
+
+        if(minutes.length()==1){
+            minutes = "0" + minutes;
+        }
+        return strhours + ":" + minutes;
     }
+
     public void deletePartnerById(String partnerId){
         if (deliveryPartnerOrderHashMap.containsKey(partnerId)){
             List<Order> orders = deliveryPartnerOrderHashMap.get(partnerId);
             for (Order order:orders){
                 orders.remove(order);
-                unassigned++;
+                notAssigned.remove(order);
             }
             deliveryPartnerOrderHashMap.remove(partnerId);
         }
@@ -123,13 +132,12 @@ public class OrderRepository {
             List<Order> orders = map.getValue();
             for (Order order:orders){
                 if (order.getId().equals(orderId)){
-                    unassigned++;
                     orders.remove(order);
+                    notAssigned.remove(order.getId());
                 }
             }
         }
         if (orderHashMap.containsKey(orderId)){
-            unassigned--;
             orderHashMap.remove(orderId);
         }
     }
