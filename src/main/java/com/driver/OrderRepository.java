@@ -56,11 +56,7 @@ public class OrderRepository {
     }
 
     public List<String> getOrdersByPartnerId(String partnerId){
-        List<String> ordersName = new ArrayList<>();
-        if (deliveryPartnerOrderHashMap.containsKey(partnerId)){
-            ordersName = deliveryPartnerOrderHashMap.get(partnerId);
-        }
-        return ordersName;
+        return deliveryPartnerOrderHashMap.getOrDefault(partnerId, new ArrayList<>());
     }
 
     public List<String> getAllOrders(){
@@ -72,8 +68,7 @@ public class OrderRepository {
     }
 
         public int getCountOfUnassignedOrders(){
-            int count= orderHashMap.size() - Assigned.size();
-            return count;
+            return orderHashMap.size() - Assigned.size();
     }
 
     public int getOrdersLeftAfterGivenTimeByPartnerId(String time, String partnerId){
