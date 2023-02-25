@@ -56,8 +56,14 @@ public class OrderRepository {
     }
 
     public int getOrderCountByPartnerId(String partnerId){
-        int count = deliveryPartnerOrderHashMap.getOrDefault(partnerId,new ArrayList<>()).size();
-        return count;
+        for(String s:deliveryPartnerOrderHashMap.keySet())
+        {
+            if(s.equals(partnerId))
+            {
+                return deliveryPartnerOrderHashMap.get(partnerId).size();
+            }
+        }
+        return 0;
     }
 
     public List<String> getOrdersByPartnerId(String partnerId){
