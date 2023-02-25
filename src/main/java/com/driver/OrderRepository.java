@@ -76,46 +76,43 @@ public class OrderRepository {
             return count;
     }
 
-    public Integer getOrdersLeftAfterGivenTimeByPartnerId(String time, String partnerId){
-        Integer ordersLeft =0;
-        int tm = Integer.parseInt(time);
-        if (deliveryPartnerOrderHashMap.containsKey(partnerId)){
-            List<String> orders = deliveryPartnerOrderHashMap.get(partnerId);
-            for (String order: orders){
-                Order order1 = orderHashMap.get(order);
-                if (order1.getDeliveryTime()>tm){
-                    ordersLeft++;
-                }
+    public int getOrdersLeftAfterGivenTimeByPartnerId(String time, String partnerId){
+        int countOfOrders = 0;
+        List<String> list = deliveryPartnerOrderHashMap.get(partnerId);
+        int deliveryTime = Integer.parseInt(time.substring(0, 2)) * 60 + Integer.parseInt(time.substring(3));
+        for (String s : list) {
+            Order order = orderHashMap.get(s);
+            if (order.getDeliveryTime() > deliveryTime) {
+                countOfOrders++;
             }
         }
-        return ordersLeft;
+        return countOfOrders;
     }
 
     public String getLastDeliveryTimeByPartnerId(String partnerId){
-        int deliverTm = 0;
-        if (deliveryPartnerOrderHashMap.containsKey(partnerId)){
-            List<String> orders = deliveryPartnerOrderHashMap.get(partnerId);
-            for (String order: orders){
-                Order order1 = orderHashMap.get(order);
-                int tm = order1.getDeliveryTime();
-                if (tm> deliverTm){
-                    deliverTm = tm;
-                }
-            }
+        String time = "";
+        List<String> list = deliveryPartnerOrderHashMap.get(partnerId);
+        int deliveryTime = 0;
+        for (String s : list) {
+            Order order = orderHashMap.get(s);
+            deliveryTime = Math.max(deliveryTime, order.getDeliveryTime());
         }
-        int hours= deliverTm/60;
-        int min= deliverTm%60;
-        String strhours = Integer.toString(hours);
-        if(strhours.length()==1){
-            strhours = "0"+strhours;
+        int hour = deliveryTime / 60;
+        String sHour = "";
+        if (hour < 10) {
+            sHour = "0" + String.valueOf(hour);
+        } else {
+            sHour = String.valueOf(hour);
         }
-
-        String minutes = Integer.toString(min);
-
-        if(minutes.length()==1){
-            minutes = "0" + minutes;
+        int min = deliveryTime % 60;
+        String sMin = "";
+        if (min < 10) {
+            sMin = "0" + String.valueOf(min);
+        } else {
+            sMin = String.valueOf(min);
         }
-        return strhours + ":" + minutes;
+        time = sHour + ":" + sMin;
+        return time;
     }
 
     public void deletePartnerById(String partnerId){
