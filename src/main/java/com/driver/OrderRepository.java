@@ -71,7 +71,8 @@ public class OrderRepository {
     }
 
         public Integer getCountOfUnassignedOrders(){
-        Integer count = Integer.valueOf(unassigned);
+        Integer count = 0;
+        count = Integer.valueOf(unassigned);
         return count;
     }
 
@@ -112,7 +113,9 @@ public class OrderRepository {
             }
             deliveryPartnerOrderHashMap.remove(partnerId);
         }
-        deliveryPartnerHashMap.remove(partnerId);
+        if (deliveryPartnerHashMap.containsKey(partnerId)){
+            deliveryPartnerHashMap.remove(partnerId);
+        }
     }
 
     public void deleteOrderById(String orderId){
@@ -125,7 +128,9 @@ public class OrderRepository {
                 }
             }
         }
-        unassigned--;
-        orderHashMap.remove(orderId);
+        if (orderHashMap.containsKey(orderId)){
+            unassigned--;
+            orderHashMap.remove(orderId);
+        }
     }
 }
