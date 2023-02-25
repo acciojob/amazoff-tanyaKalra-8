@@ -12,32 +12,25 @@ public class OrderRepository {
 
     HashMap<String, List<String>> deliveryPartnerOrderHashMap = new HashMap<>();
 
-    HashSet<String> Assigned = new HashSet<>();
+    HashMap<String, String> Assigned = new HashMap<>();
 
     public void addOrder(Order order){
         String id = order.getId();
         orderHashMap.put(id,order);
     }
 
-    public void addPartner(DeliveryPartner deliveryPartner){
-        String id = deliveryPartner.getId();
+    public void addPartner(String id){
+        DeliveryPartner deliveryPartner = new DeliveryPartner(id);
         deliveryPartnerHashMap.put(id,deliveryPartner);
     }
 
     public void addOrderPartnerPair(String orderId, String partnerId){
-        if(orderHashMap.containsKey(orderId) && deliveryPartnerHashMap.containsKey(partnerId))
-        {
-            Assigned.add(orderId);
-            orderHashMap.put(orderId,orderHashMap.get(orderId));
-            deliveryPartnerHashMap.put(partnerId,deliveryPartnerHashMap.get(partnerId));
-            List<String> curr =new ArrayList<>();
-            if(deliveryPartnerOrderHashMap.containsKey(partnerId))
-            {
-                curr=deliveryPartnerOrderHashMap.get(partnerId);
-            }
-            curr.add(orderId);
-            deliveryPartnerOrderHashMap.put(partnerId,curr);
-        }
+        List<String> list = deliveryPartnerOrderHashMap.getOrDefault(partnerId,new ArrayList<>());
+        list.add(orderId);
+        deliveryPartnerOrderHashMap.put(partnerId,list);
+        Assigned.put(orderId,partnerId);
+        DeliveryPartner deliveryPartner = deliveryPartnerHashMap.get(partnerId);
+        deliveryPartner.setNumberOfOrders(list.size());
     }
 
     public Order getOrderById(String id){
@@ -45,7 +38,7 @@ public class OrderRepository {
         {
             if(s.equals(id))
             {
-                return orderHashMap.get(id);
+                return orderHashMap.get(s);
             }
         }
         return null;
@@ -56,7 +49,7 @@ public class OrderRepository {
         {
             if(s.equals(id))
             {
-                return deliveryPartnerHashMap.get(id);
+                return deliveryPartnerHashMap.get(s);
             }
         }
         return null;
@@ -92,8 +85,7 @@ public class OrderRepository {
         Integer ordersLeft =0;
         int tm = Integer.parseInt(time);
         if (deliveryPartnerOrderHashMap.containsKey(partnerId)){
-            List<String> orders;
-            orders = deliveryPartnerOrderHashMap.get(partnerId);
+            List<String> orders = deliveryPartnerOrderHashMap.get(partnerId);
             for (String order: orders){
                 Order order1 = orderHashMap.get(order);
                 if (order1.getDeliveryTime()>tm){
@@ -132,27 +124,28 @@ public class OrderRepository {
     }
 
     public void deletePartnerById(String partnerId){
-        if (deliveryPartnerOrderHashMap.containsKey(partnerId)){
-            List<String> orders = deliveryPartnerOrderHashMap.get(partnerId);
-            for (String order:orders){
-                orders.remove(order);
-                Assigned.remove(order);
-            }
-            deliveryPartnerOrderHashMap.remove(partnerId);
-        }
         deliveryPartnerHashMap.remove(partnerId);
+        List<String> list = deliveryPartnerOrderHashMap.getOrDefault(partnerId, new ArrayList<>());
+        ListIterator<String> itr = list.listIterator();
+        while (itr.hasNext()) {
+            String s = itr.next();
+            Assigned.remove(s);
+        }
+        deliveryPartnerOrderHashMap.remove(partnerId);
     }
 
     public void deleteOrderById(String orderId){
-        for (Map.Entry<String, List<String>> map: deliveryPartnerOrderHashMap.entrySet()){
-            List<String> orders = map.getValue();
-            for (String order:orders){
-                if (order.equals(orderId)){
-                    orders.remove(order);
-                    Assigned.remove(order);
-                }
+        orderHashMap.remove(orderId);
+        String partnerId = Assigned.get(orderId);
+        Assigned.remove(orderId);
+        List<String> list = deliveryPartnerOrderHashMap.get(partnerId);
+        ListIterator<String> itr = list.listIterator();
+        while (itr.hasNext()) {
+            String s = itr.next();
+            if (s.equals(orderId)) {
+                itr.remove();
             }
         }
-        orderHashMap.remove(orderId);
+        deliveryPartnerOrderHashMap.put(partnerId, list);
     }
 }

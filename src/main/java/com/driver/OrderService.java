@@ -16,8 +16,8 @@ public class OrderService {
     }
 
     public void addPartner(String id){
-        DeliveryPartner deliveryPartner = new DeliveryPartner(id);
-        orderRepository.addPartner(deliveryPartner);
+        //DeliveryPartner deliveryPartner = new DeliveryPartner(id);
+        orderRepository.addPartner(id);
     }
 
     public void addOrderPartnerPair(String orderId, String partnerId){
