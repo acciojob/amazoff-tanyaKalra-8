@@ -10,7 +10,7 @@ import java.util.Map;
 @Repository
 public class OrderRepository {
 
-    Integer unassigned = 0;
+    Integer unassigned = null;
     HashMap<String, Order> orderHashMap = new HashMap<>();
     HashMap<String,DeliveryPartner> deliveryPartnerHashMap = new HashMap<>();
 
@@ -18,7 +18,12 @@ public class OrderRepository {
 
     public void addOrder(Order order){
         String id = order.getId();
-        unassigned++;
+        if (unassigned==null){
+            unassigned=1;
+        }
+        else {
+            unassigned++;
+        }
         orderHashMap.put(id,order);
     }
 
@@ -119,11 +124,12 @@ public class OrderRepository {
             List<Order> orders = map.getValue();
             for (Order order:orders){
                 if (order.getId().equals(orderId)){
-                    unassigned--;
+                    unassigned++;
                     orders.remove(order);
                 }
             }
         }
+        unassigned--;
         orderHashMap.remove(orderId);
     }
 }
