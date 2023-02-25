@@ -10,7 +10,7 @@ import java.util.Map;
 @Repository
 public class OrderRepository {
 
-    int unassigned = null;
+    int unassigned = 0;
     HashMap<String, Order> orderHashMap = new HashMap<>();
     HashMap<String,DeliveryPartner> deliveryPartnerHashMap = new HashMap<>();
 
